@@ -1,0 +1,54 @@
+services:
+  apache:
+    image: httpd:latest
+    container_name: my-apache-app
+    ports:
+      - '80:80'
+    volumes:
+      - ./website:/usr/local/apache2/htdocs
+    networks:
+      - webnet
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: my-mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: myappdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - webnet
+
+  php:
+    image: php:7.4-apache
+    container_name: my-php-app
+    ports:
+      - '8080:80'
+    volumes:
+      - ./website:/var/www/html
+    networks:
+      - webnet
+
+  adminer:
+    image: adminer
+    container_name: my-adminer
+    ports:
+      - '8081:8080'
+    networks:
+      - webnet
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:
+
+networks:
+  webnet:
+    driver: bridge
